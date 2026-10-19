@@ -8,6 +8,7 @@ from homeassistant.components.sensor import SensorEntity, SensorStateClass
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import PERCENTAGE
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.device_registry import DeviceEntry
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .const import PWM_CONTROL
@@ -21,8 +22,10 @@ async def async_setup_entry(
 ) -> None:
     """Sensoren anlegen."""
     async_add_entities(
-        HmipValvePositionSensor(device, index)
-        for device, index in iter_switch_channels(entry.runtime_data)
+        HmipValvePositionSensor(device, index, device_entry)
+        for device, index, device_entry in iter_switch_channels(
+            hass, entry.runtime_data
+        )
     )
 
 
@@ -33,9 +36,11 @@ class HmipValvePositionSensor(HmipSwitchChannelEntity, SensorEntity):
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_suggested_display_precision = 0
 
-    def __init__(self, device: Any, channel_index: str) -> None:
+    def __init__(
+        self, device: Any, channel_index: str, device_entry: DeviceEntry
+    ) -> None:
         """Initialisieren – bei Zweipunktregelung standardmäßig deaktiviert (nur 0/100)."""
-        super().__init__(device, channel_index, "valve_position")
+        super().__init__(device, channel_index, "valve_position", device_entry)
         self._attr_entity_registry_enabled_default = (
             self.climate_control_type == PWM_CONTROL
         )

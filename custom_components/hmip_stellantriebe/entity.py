@@ -3,13 +3,16 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
+import logging
 from typing import Any
 
-from homeassistant.core import callback
-from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.entity import Entity
 
 from .const import CHANNEL_TYPE, CLIMATE_CONTROL_TYPE, HMIP_DOMAIN, VALVE_POSITION
+
+_LOGGER = logging.getLogger(__name__)
 
 
 def _channels(device: Any) -> dict[str, dict[str, Any]]:
@@ -23,16 +26,40 @@ def _channels(device: Any) -> dict[str, dict[str, Any]]:
     return raw.get("functionalChannels") or {}
 
 
-def iter_switch_channels(haps: list[Any]) -> Iterator[tuple[Any, str]]:
-    """Alle Geräte mit internem Schaltausgang: (Gerät, Kanalindex)."""
+def iter_switch_channels(
+    hass: HomeAssistant, haps: list[Any]
+) -> Iterator[tuple[Any, str, dr.DeviceEntry]]:
+    """Alle Geräte mit internem Schaltausgang: (Gerät, Kanalindex, HA-Gerät).
+
+    Geräte-Kennungen sind in HA nur je Config-Entry eindeutig – das HA-Gerät
+    wird deshalb im Eintrag von homematicip_cloud gesucht, nicht per DeviceInfo
+    (das würde ein Doppel-Gerät unter dieser Integration anlegen).
+    """
+    dev_reg = dr.async_get(hass)
     for hap in haps:
+        ha_devices = {
+            ident: entry
+            for entry in dr.async_entries_for_config_entry(
+                dev_reg, hap.config_entry.entry_id
+            )
+            for domain, ident in entry.identifiers
+            if domain == HMIP_DOMAIN
+        }
         for device in hap.home.devices:
             for index, channel in _channels(device).items():
                 if (
-                    channel.get("functionalChannelType") == CHANNEL_TYPE
-                    and VALVE_POSITION in channel
+                    channel.get("functionalChannelType") != CHANNEL_TYPE
+                    or VALVE_POSITION not in channel
                 ):
-                    yield device, index
+                    continue
+                if (device_entry := ha_devices.get(device.id)) is None:
+                    _LOGGER.warning(
+                        "Kein HA-Gerät für %s (%s) gefunden, übersprungen",
+                        device.label,
+                        device.id,
+                    )
+                    continue
+                yield device, index, device_entry
 
 
 class HmipSwitchChannelEntity(Entity):
@@ -41,14 +68,21 @@ class HmipSwitchChannelEntity(Entity):
     _attr_has_entity_name = True
     _attr_should_poll = False
 
-    def __init__(self, device: Any, channel_index: str, key: str) -> None:
+    def __init__(
+        self,
+        device: Any,
+        channel_index: str,
+        key: str,
+        device_entry: dr.DeviceEntry,
+    ) -> None:
         """Initialisieren."""
         self._device = device
         self._channel_index = channel_index
         self._attr_translation_key = key
         self._attr_unique_id = f"{device.id}_{channel_index}_{key}"
-        # Nur verlinken: das Gerät gehört homematicip_cloud.
-        self._attr_device_info = DeviceInfo(identifiers={(HMIP_DOMAIN, device.id)})
+        # An das vorhandene Gerät von homematicip_cloud hängen (wie switch_as_x),
+        # ohne dieses Gerät zu verändern.
+        self.device_entry = device_entry
 
     @property
     def _channel(self) -> dict[str, Any]:

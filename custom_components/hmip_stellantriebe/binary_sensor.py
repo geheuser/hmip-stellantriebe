@@ -10,6 +10,7 @@ from homeassistant.components.binary_sensor import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.device_registry import DeviceEntry
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from .entity import HmipSwitchChannelEntity, iter_switch_channels
@@ -22,8 +23,10 @@ async def async_setup_entry(
 ) -> None:
     """Binärsensoren anlegen."""
     async_add_entities(
-        HmipValveBinarySensor(device, index)
-        for device, index in iter_switch_channels(entry.runtime_data)
+        HmipValveBinarySensor(device, index, device_entry)
+        for device, index, device_entry in iter_switch_channels(
+            hass, entry.runtime_data
+        )
     )
 
 
@@ -32,9 +35,11 @@ class HmipValveBinarySensor(HmipSwitchChannelEntity, BinarySensorEntity):
 
     _attr_device_class = BinarySensorDeviceClass.OPENING
 
-    def __init__(self, device: Any, channel_index: str) -> None:
+    def __init__(
+        self, device: Any, channel_index: str, device_entry: DeviceEntry
+    ) -> None:
         """Initialisieren."""
-        super().__init__(device, channel_index, "valve")
+        super().__init__(device, channel_index, "valve", device_entry)
 
     @property
     def is_on(self) -> bool | None:
