@@ -25,6 +25,14 @@ in Echtzeit über den Websocket der Original-Integration.
 
 Die Entitäten erscheinen direkt am vorhandenen Gerät der HomematicIP-Cloud-Integration.
 
+**Heizstatus am Thermostat (ab 0.2.0):** Die Raum-Thermostate der HomematicIP-Cloud-Integration
+(`climate.<raum>`, Heizgruppen mit Wandthermostat-Schaltausgang) bekommen zusätzlich das
+Attribut `hvac_action` – **Heizt**, sobald ein Schaltausgang der Gruppe aktiv ist, sonst
+**Untätig**. Kacheln, Thermostat-Karte und Verlaufsgrafik zeigen das wie bei anderen
+Thermostaten automatisch an. Dafür erweitert die Integration die Eigenschaft `hvac_action`
+der HomematicIP-Heizgruppen zur Laufzeit; Gruppen ohne Schaltausgang behalten das
+Original-Verhalten, und beim Entfernen der Integration wird das Original wiederhergestellt.
+
 ## Installation (HACS)
 
 1. HACS → ⋮ → **Benutzerdefinierte Repositories** →

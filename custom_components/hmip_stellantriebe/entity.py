@@ -26,6 +26,17 @@ def _channels(device: Any) -> dict[str, dict[str, Any]]:
     return raw.get("functionalChannels") or {}
 
 
+def valve_positions(device: Any) -> list[float]:
+    """Ventilstellungen aller internen Schaltausgänge eines Geräts (leer = keine)."""
+    return [
+        float(value)
+        for channel in _channels(device).values()
+        if channel.get("functionalChannelType") == CHANNEL_TYPE
+        and isinstance(value := channel.get(VALVE_POSITION), (int, float))
+        and not isinstance(value, bool)
+    ]
+
+
 def iter_switch_channels(
     hass: HomeAssistant, haps: list[Any]
 ) -> Iterator[tuple[Any, str, dr.DeviceEntry]]:
