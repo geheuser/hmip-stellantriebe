@@ -1,0 +1,22 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "HmIP Stellantriebe",
+        "description": "Legt für jedes Homematic-IP-Wandthermostat mit internem Schaltausgang (z. B. HmIP-BWTH) einen Sensor „Stellantrieb“ an. Nutzt die vorhandene HomematicIP-Cloud-Integration, es ist nichts weiter einzugeben."
+      }
+    },
+    "abort": {
+      "no_hmip": "Keine HomematicIP-Cloud-Integration gefunden. Bitte zuerst den Access Point einbinden.",
+      "single_instance_allowed": "Bereits eingerichtet."
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "valve": { "name": "Stellantrieb" }
+    },
+    "sensor": {
+      "valve_position": { "name": "Ventilstellung" }
+    }
+  }
+}

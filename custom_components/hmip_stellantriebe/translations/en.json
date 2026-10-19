@@ -1,0 +1,22 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "HmIP valve actuators",
+        "description": "Creates a \"Valve actuator\" sensor for every Homematic IP wall thermostat with an internal switch output (e.g. HmIP-BWTH). Uses the existing HomematicIP Cloud integration, nothing to enter."
+      }
+    },
+    "abort": {
+      "no_hmip": "No HomematicIP Cloud integration found. Set up the access point first.",
+      "single_instance_allowed": "Already configured."
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "valve": { "name": "Valve actuator" }
+    },
+    "sensor": {
+      "valve_position": { "name": "Valve position" }
+    }
+  }
+}

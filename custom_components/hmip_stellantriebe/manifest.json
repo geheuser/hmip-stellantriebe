@@ -1,0 +1,14 @@
+{
+  "domain": "hmip_stellantriebe",
+  "name": "HmIP Stellantriebe",
+  "codeowners": ["@ghiot"],
+  "config_flow": true,
+  "dependencies": ["homematicip_cloud"],
+  "documentation": "https://github.com/ghiot/hmip-stellantriebe",
+  "integration_type": "service",
+  "iot_class": "cloud_push",
+  "issue_tracker": "https://github.com/ghiot/hmip-stellantriebe/issues",
+  "requirements": [],
+  "single_config_entry": true,
+  "version": "0.1.0"
+}

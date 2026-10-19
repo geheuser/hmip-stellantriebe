@@ -1,0 +1,13 @@
+{
+  "entity": {
+    "binary_sensor": {
+      "valve": {
+        "default": "mdi:valve-closed",
+        "state": { "on": "mdi:valve-open" }
+      }
+    },
+    "sensor": {
+      "valve_position": { "default": "mdi:valve" }
+    }
+  }
+}
