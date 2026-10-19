@@ -39,3 +39,9 @@ Voraussetzung: eingerichtete Integration HomematicIP Cloud.
 Die Integration liest die Rohdaten (`_rawJSONData`) der homematicip-Bibliothek, weil
 diese das Feld nicht selbst auswertet. Ändert sich das intern, werden die Entitäten
 „nicht verfügbar“ – die Heizungsregelung selbst ist davon nie betroffen (rein lesend).
+
+## Rechtliches
+
+Inoffizielles Community-Projekt, nicht mit der eQ-3 AG verbunden und nicht von ihr
+unterstützt. Homematic IP ist eine Marke der eQ-3 AG; der Name wird hier nur
+verwendet, um die Kompatibilität zu beschreiben.
